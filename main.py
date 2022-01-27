@@ -44,13 +44,16 @@ async def on_message(message):
             elif con == "help":
               e=emb(f"**For more info:** ``` {prefix} help [command] ```", f"**Add ``` {prefix} ``` before any command**")
               e.set_author(name="Commands", url="", icon_url="https://image.freepik.com/free-vector/blue-pencil-with-pixel-art-style_475147-504.jpg")
-              em = lambda a,b : e.add_field(name=a,value=f"``` {b} ```", inline=False)
-              em("\a","\a")
-              em(":notebook_with_decorative_cover: Profile commands :notebook_with_decorative_cover:", "start, profile, attributes, boosts, cv")
-              em("\a","\a")
-              em(":notebook: Menu commands :notebook:", "bank, shop")
-              # e.add_field(name="Field1", value="hi", inline=False)
-              # e.add_field(name="Field2", value="hi2", inline=False)
+              
+              space = "\a\n\a"
+              em = lambda a,b,c="" : e.add_field(name=a,value=f"``` {b} ```{c}", inline=False)
+           
+              em(f"{space}:bookmark: Profile commands :bookmark:", "start, profile, attributes, boosts, cv", space)
+              em(":beginner: Menu commands :beginner:", "bank, shop, jobs, education, special", space)
+              em(":gift: Rewards commands :gift:", "daily, votetrend, checkin, quiz", space)
+              em(":currency_exchange: Interaction commands :currency_exchange:", "give, phone", space)
+              em(":diamonds: Misc commands :diamonds:", "setprefix, msgdev")
+
               await message.channel.send(embed=e)
                 
                 
