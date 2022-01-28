@@ -11,8 +11,7 @@ TOKEN = os.environ["DISCORD_TOKEN"]
 
 prefix = ":V"
 bot = discord.Client()
-print("running in " +  str(len(bot.guilds)) + " servers!")
-
+print("running")
 def emb(t,desc="", col = 0x3AABC2):
         embedVar = discord.Embed(title=t, description=desc, color=col)
         return embedVar
@@ -57,24 +56,24 @@ async def on_message(message):
               await message.channel.send(embed=e)
                 
             elif con == 'start':
-              user = message.author
+              u = user = message.author
               try:
                  user = db["life"]["disco_users"][user]
               except KeyError:
                 #  await message.channel.send(e)
-                 await message.channel.send(f"Hi {user.mention}!\nMake sure you have read and accepted the rules (`{prefix} rules`).\nif Yes, react with :thumbsup: !")
-                #  await bot.add_reaction(accept_decline, emoji="redCross:423541694600970243")
+                 msg = await message.channel.send(f"Hi {user.mention}!\nMake sure you have read and accepted the rules (`{prefix} rules`).\nif Yes, react with :thumbsup: !")
+                 await msg.add_reaction(emoji="\N{THUMBS UP SIGN}")
 
+                   #  had an error for so long because of typing - ch(user, reaction) here :(
+                 def ch(reaction, user): 
+                
+                   return user == u and str(reaction) == "\N{THUMBS UP SIGN}" and reaction.message == msg
                  try:
-                  reaction, user = await bot.wait_for('reaction_add', timeout=15.0)
+                  r = await bot.wait_for("reaction_add", timeout=15.0, check = ch)
                  except asyncio.exceptions.TimeoutError:
                     await message.channel.send("`TimeOutError`")
                  else:
-                    if (user == message.author):
-                      print (reaction)
-                      await message.channel.send(f"{reaction}")
-                    else:
-                      await message.channel.send(f"`Err : Interference by : `{user.mention}")
+                    await message.channel.send(f"{r[0]}")
                       
 
             else:
