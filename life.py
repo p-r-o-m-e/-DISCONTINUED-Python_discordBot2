@@ -1,5 +1,7 @@
+from logging import PlaceHolder
 import os
 from pyexpat.errors import messages
+from select import select
 import discord
 import asyncio
 # from replit import db
@@ -28,20 +30,44 @@ print("running")
 # "userid"
 
 #db
+
+
 def oneTimef():
   pass
 
-def dbdump():
-  db.dump()
 #add tuple to dictionary
 def aD(dname, v, v2):
   db.dadd(dname, (str(v),str(v2)))
-def setDval(dname,v, v2):
-  db.dpop(dname,str(v))
-  aD(dname, v, v2)
-def getDvalist(dname, v):
-  return db.dget(dname, str(v)).split(".")
+  db.dump()
+# def setDval(dname,v, v2):
+#   db.dpop(dname,str(v))
+#   aD(dname, v, v2)
 
+def getDvalist(dname, v):
+  if db.dexists(dname,str(v)):
+   return db.dget(dname, str(v)).split(".")
+  else: 
+   return list("non existent key")
+def delDvalist(dname, c, message):
+  v = getDvalist("user_actions", message.author.id)
+  if c in v: 
+   v2 = db.dget("user_actions", str(message.author.id)).replace(f".{c}", "")
+  aD("user_actions", message.author.id, v2)
+
+# -----------------------
+# owner=""
+# async def a():
+#  await bot.application_info()
+#  owner = d.owner.name
+# if owner == "":
+#   a()
+# print("o : "+str(owner))
+# db.dpop("userinfo",str(owner.id))
+# db.dpop("user_actions",str(owner.id))
+# db.dpop("user_status",str(owner.id))
+
+# db.dcreate("user_status")
+# aD("user_actions", "1", "ok.1.2")
 #db.dget(dict,'name')
 
 # -----------------------
@@ -127,6 +153,12 @@ async def on_message(message):
                     await message.channel.send("`TimeOutError`")
                  else:
                   del msg
+                  aD("user_status", message.author.id, "rules_agreed")
+                  v = db.dvals("userid")
+                  print("v = " + str(v))
+                  v2 = list(v)[-1]
+                  aD("userid", message.author.id, str(int(v2) + 1))
+                  db.dump()
                   msg = f"Hello {message.author.name}.\nI work for Discorp inc. And you are a volunteer for our project Disco-Life!\nNow we intend to observe how you live in Disco-Verse, i hope you are ready!" + f"{chr(173)} \n {chr(173)}\n {chr(173)}"
 
                   today = date.today().strftime("%d-%m-%Y")
@@ -136,26 +168,36 @@ async def on_message(message):
                   e.set_footer(text = f"{cash}$ credited to bank account")
 
                   await message.channel.send(embed=e)
-                  await message.channel.send(f" `use {prefix.lower()} action ok` ")
-
+                  await message.channel.send(f" `available actions : customize        `\n`use {prefix.lower()} action customize` ")
+                  aD("user_actions", message.author.id, ".customize")
                   try:
                     del msg
                     def check(m):
                       m1=m
                       m = m.content.split(" ", 2)
-                      return (m[0].lower() == prefix.lower() and m[1] == "action" and m[2] == "ok") and m1.channel == message.channel and m1.author == message.author
+                      return (m[0].lower() == prefix.lower() and m[1] == "action" and m[2] == "customize") and m1.channel == message.channel and m1.author == message.author
                     msg = await bot.wait_for('message', check=check)
 
                   except asyncio.exceptions.TimeoutError:
                     await message.channel.send("`TimeOutError`")
+                    db.dpop("user_actions", str(message.author.id))
                   else:
-                    await message.channel.send(f">>> Profile created!{prefix.lower()} profile and many other commands unlocked.")
+                    await message.channel.send("select look :\n")
+                    
+                    
+                    delDvalist("user_actions", c="customize",message=message)
+                    aD("user_status", message.author.id, "profiled")
+                    db.dump()
+                    await message.channel.send(f">>> Profile created! `{prefix.lower()} profile` and many other commands unlocked.")
+
 
             elif con == "action":
-              if not message.content.split(" ", 2)[2] in getDvalist("user_actions", message.author.id):
-                 await message. channel.send("`Err : Invalid command.`")
+              # if not message.content.split(" ", 2)[2] in getDvalist("user_actions", message.author.id):
+              #    print(">" + message.content.split(" ", 2)[2] + "<")
+              #    await message. channel.send("`Err : Invalid command.`")
+              pass
             else:
-                
+                # print(con)
                 await message. channel.send("`Err : Invalid command.`")
 
 
